@@ -1,0 +1,209 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Octane 3D Positional Voice</title>
+    <style>
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+            user-select: none;
+        }
+        body {
+            background: #0f1117;
+            color: #e2e8f0;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            min-height: 100vh;
+            padding: 16px;
+        }
+        .card {
+            background: #1a1e29;
+            border: 1px solid #2d3748;
+            border-radius: 16px;
+            padding: 24px;
+            width: 100%;
+            max-width: 380px;
+            box-shadow: 0 10px 25px rgba(0,0,0,0.5);
+            text-align: center;
+        }
+        .badge {
+            display: inline-block;
+            font-size: 11px;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            padding: 4px 10px;
+            border-radius: 20px;
+            background: #2b6cb0;
+            color: #ebf8ff;
+            margin-bottom: 12px;
+        }
+        h1 {
+            font-size: 20px;
+            margin-bottom: 8px;
+            color: #fff;
+        }
+        p.subtitle {
+            font-size: 13px;
+            color: #a0aec0;
+            margin-bottom: 20px;
+        }
+        .input-group {
+            margin-bottom: 16px;
+            text-align: left;
+        }
+        label {
+            font-size: 12px;
+            color: #cbd5e0;
+            display: block;
+            margin-bottom: 6px;
+        }
+        input {
+            width: 100%;
+            padding: 12px;
+            border-radius: 10px;
+            background: #0d1017;
+            border: 1px solid #4a5568;
+            color: #fff;
+            font-size: 18px;
+            font-weight: bold;
+            text-align: center;
+            letter-spacing: 4px;
+            outline: none;
+            transition: border 0.2s;
+        }
+        input:focus {
+            border-color: #3182ce;
+        }
+        .btn {
+            width: 100%;
+            padding: 14px;
+            border-radius: 10px;
+            border: none;
+            font-size: 15px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.2s;
+            margin-top: 8px;
+        }
+        .btn-primary {
+            background: #3182ce;
+            color: white;
+        }
+        .btn-primary:hover {
+            background: #2b6cb0;
+        }
+        .btn-mute {
+            background: #4a5568;
+            color: white;
+            margin-top: 12px;
+        }
+        .btn-mute.muted {
+            background: #e53e3e;
+        }
+        .status-panel {
+            margin-top: 20px;
+            padding: 14px;
+            background: #131722;
+            border-radius: 10px;
+            text-align: left;
+            font-size: 13px;
+        }
+        .status-row {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 8px;
+        }
+        .status-row:last-child {
+            margin-bottom: 0;
+        }
+        .indicator {
+            display: inline-block;
+            width: 8px;
+            height: 8px;
+            border-radius: 50%;
+            background: #e53e3e;
+            margin-right: 6px;
+        }
+        .indicator.active {
+            background: #48bb78;
+        }
+        .meter-container {
+            height: 8px;
+            background: #2d3748;
+            border-radius: 4px;
+            overflow: hidden;
+            margin-top: 12px;
+        }
+        .meter-fill {
+            height: 100%;
+            width: 0%;
+            background: #48bb78;
+            transition: width 0.05s ease;
+        }
+        .peers-list {
+            margin-top: 16px;
+            font-size: 12px;
+            color: #a0aec0;
+            text-align: left;
+            max-height: 120px;
+            overflow-y: auto;
+        }
+        .peer-item {
+            padding: 4px 0;
+            border-bottom: 1px solid #242b3b;
+            display: flex;
+            justify-content: space-between;
+        }
+    </style>
+</head>
+<body>
+
+<div class="card" id="app">
+    <div class="badge">Octane 2021</div>
+    <h1>3D Позиционный Войс</h1>
+    <p class="subtitle" id="subTitle">Введите 4-значный код из чата игры (/voice)</p>
+
+    <!-- Форма ввода кода -->
+    <div id="joinSection">
+        <div class="input-group">
+            <input type="text" id="codeInput" maxlength="4" placeholder="••••" autofocus inputmode="numeric">
+        </div>
+        <button class="btn btn-primary" id="connectBtn">Подключиться</button>
+    </div>
+
+    <!-- Панель активного войса -->
+    <div id="voiceSection" style="display: none;">
+        <div class="status-panel">
+            <div class="status-row">
+                <span>Статус:</span>
+                <span><span class="indicator active" id="netIndicator"></span><b id="statusLabel">В эфире</b></span>
+            </div>
+            <div class="status-row">
+                <span>Игрок:</span>
+                <span id="playerLabel">-</span>
+            </div>
+            <div class="status-row">
+                <span>Игроков рядом:</span>
+                <span id="peerCountLabel">0</span>
+            </div>
+        </div>
+
+        <div class="meter-container">
+            <div class="meter-fill" id="micMeter"></div>
+        </div>
+
+        <button class="btn btn-mute" id="muteBtn">Микрофон: ВКЛ</button>
+
+        <div class="peers-list" id="peersList"></div>
+    </div>
+</div>
+
+<script src="/client.js"></script>
+</body>
+</html>
